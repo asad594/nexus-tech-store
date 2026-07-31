@@ -22,11 +22,14 @@ const getSpecIcon = (categoryName) => {
 
 const getSpecText = (product) => {
   if (!product.specs) return 'High performance tech';
+  if (product.specs.Processor) return product.specs.Processor;
+  if (product.specs.processor) return product.specs.processor;
   if (product.specs.chip) return product.specs.chip;
+  if (product.specs['Display Size']) return product.specs['Display Size'];
+  if (product.specs.display) return product.specs.display;
   if (product.specs.camera) return product.specs.camera;
   if (product.specs.anc) return product.specs.anc;
-  if (product.specs.display) return product.specs.display;
-  return Object.values(product.specs)[0] || 'Premium specifications';
+  return Object.values(product.specs)[1] || Object.values(product.specs)[0] || 'Premium specifications';
 };
 
 const ProductCard = ({ product, onSelect, index = 0 }) => {
@@ -89,11 +92,12 @@ const ProductCard = ({ product, onSelect, index = 0 }) => {
       </div>
 
       {/* Product Image Forward Display */}
-      <div className="relative h-48 w-full my-3 flex items-center justify-center overflow-hidden rounded-xl bg-white/[0.02]">
+      <div className="relative h-52 w-full my-2 flex items-center justify-center overflow-hidden rounded-xl bg-white/[0.02]">
         <img
           src={product.image_url}
           alt={product.name}
-          className="max-h-40 max-w-full object-contain filter drop-shadow-[0_12px_20px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-500 ease-out"
+          className="max-h-48 max-w-[90%] w-auto h-auto object-contain filter drop-shadow-[0_12px_20px_rgba(0,0,0,0.6)] group-hover:scale-105 transition-transform duration-500 ease-out"
+          style={{ imageRendering: 'high-quality' }}
         />
         {/* Hover Quick View Overlay */}
         <div className="absolute inset-0 bg-blue-950/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

@@ -27,12 +27,24 @@ const RegisterPage = () => {
     try {
       await register({ username, email, password, name, role: 'customer' });
       navigate('/products');
-    } catch (errData) {
-      console.error('Registration error details:', errData);
-      if (typeof errData === 'object' && errData !== null) {
-        setFieldErrors(errData);
+    } catch (err) {
+      console.error('Registration error details:', err);
+      if (err?.isNetworkError || (!err?.response && err?.name === 'AxiosError') || err?.message === 'Network Error' || err?.code === 'ERR_NETWORK') {
+        setError('Unable to connect to backend server. Please ensure the Django server is running at http://localhost:8000.');
+        setFieldErrors({});
+      } else if (err?.response?.data && typeof err.response.data === 'object') {
+        const data = err.response.data;
+        setFieldErrors(data);
         const messages = [];
-        Object.entries(errData).forEach(([field, errList]) => {
+        Object.entries(data).forEach(([field, errList]) => {
+          const detail = Array.isArray(errList) ? errList.join(' ') : String(errList);
+          messages.push(`${field.toUpperCase()}: ${detail}`);
+        });
+        setError(messages.join(' | '));
+      } else if (typeof err === 'object' && err !== null && !err.name) {
+        setFieldErrors(err);
+        const messages = [];
+        Object.entries(err).forEach(([field, errList]) => {
           const detail = Array.isArray(errList) ? errList.join(' ') : String(errList);
           messages.push(detail);
         });

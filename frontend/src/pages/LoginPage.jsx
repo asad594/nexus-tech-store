@@ -27,7 +27,11 @@ const LoginPage = () => {
       navigate(redirect);
     } catch (err) {
       console.error('Login error', err);
-      setError('Invalid username or password. Please try again.');
+      if (err?.code === 'ERR_NETWORK' || !err?.response) {
+        setError('Unable to connect to backend server. Please ensure the Django backend server is running at http://localhost:8000.');
+      } else {
+        setError('Invalid username or password. Please try again.');
+      }
       setShake(true);
       setTimeout(() => setShake(false), 500);
     } finally {
