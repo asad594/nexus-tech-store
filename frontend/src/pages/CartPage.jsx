@@ -57,64 +57,80 @@ const CartPage = () => {
           
           {/* Cart Item List */}
           <div className="lg:col-span-8 space-y-4">
-            {cartItems.map((item) => (
-              <div
-                key={item.id}
-                className="glass-panel p-4 md:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-white/10"
-              >
-                <div className="flex items-center space-x-4 w-full sm:w-auto">
-                  <img
-                    src={item.product.image_url}
-                    alt={item.product.name}
-                    className="w-20 h-20 object-contain rounded-xl bg-white/5 p-2 shrink-0"
-                  />
-                  <div>
-                    <h3 className="font-bold text-white text-base">
-                      {item.product.name}
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      Brand: {item.product.brand}
-                    </p>
-                    <span className="text-sm font-extrabold text-blue-400 mt-1 block">
-                      ${parseFloat(item.product.price).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Quantity Modifier & Remove */}
-                <div className="flex items-center space-x-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-white/5">
-                  <div className="flex items-center glass-pill rounded-xl px-3 py-1 text-sm">
-                    <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                      className="text-slate-400 hover:text-white px-2 font-bold cursor-pointer"
-                    >
-                      -
-                    </button>
-                    <span className="px-3 font-bold text-white">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                      className="text-slate-400 hover:text-white px-2 font-bold cursor-pointer"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-sm font-extrabold text-white">
-                      ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
+            {cartItems.map((item) => {
+              const unitPrice = parseFloat(item.product.price) + (item.variant?.price_delta ? parseFloat(item.variant.price_delta) : 0);
+              const thumb = item.variant?.image_url || item.product.image_url;
+              return (
+                <div
+                  key={item.id}
+                  className="glass-panel p-4 md:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-white/10"
+                >
+                  <div className="flex items-center space-x-4 w-full sm:w-auto">
+                    <img
+                      src={thumb}
+                      alt={item.product.name}
+                      className="w-20 h-20 object-contain rounded-xl bg-white/5 p-2 shrink-0"
+                    />
+                    <div>
+                      <h3 className="font-bold text-white text-base">
+                        {item.product.name}
+                      </h3>
+                      {item.variant ? (
+                        <div className="flex items-center space-x-2 mt-0.5">
+                          <span
+                            className="w-3 h-3 rounded-full border border-white/30 shrink-0 inline-block"
+                            style={{ backgroundColor: item.variant.hex_code }}
+                          />
+                          <span className="text-xs text-slate-300 font-semibold">
+                            Color: {item.variant.color_name}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400">
+                          Brand: {item.product.brand}
+                        </p>
+                      )}
+                      <span className="text-sm font-extrabold text-blue-400 mt-1 block">
+                        ${unitPrice.toFixed(2)}
+                      </span>
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => removeFromCart(item.product.id)}
-                    className="text-slate-500 hover:text-red-400 p-2 cursor-pointer transition-colors"
-                    title="Remove item"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {/* Quantity Modifier & Remove */}
+                  <div className="flex items-center space-x-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-white/5">
+                    <div className="flex items-center glass-pill rounded-xl px-3 py-1 text-sm">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="text-slate-400 hover:text-white px-2 font-bold cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="px-3 font-bold text-white">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="text-slate-400 hover:text-white px-2 font-bold cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="text-sm font-extrabold text-white">
+                        ${(unitPrice * item.quantity).toFixed(2)}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="text-slate-500 hover:text-red-400 p-2 cursor-pointer transition-colors"
+                      title="Remove item"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Right Order Summary */}

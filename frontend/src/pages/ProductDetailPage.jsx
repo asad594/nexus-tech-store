@@ -16,6 +16,7 @@ const ProductDetailPage = () => {
   const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,11 @@ const ProductDetailPage = () => {
     setLoading(true);
     try {
       const res = await API.get(`/products/${id}/`);
-      setProduct(res.data);
+      const prodData = res.data;
+      setProduct(prodData);
+
+      const def = prodData.variants?.find(v => v.is_default) || prodData.variants?.[0] || null;
+      setSelectedVariant(def);
 
       // Fetch related products
       const relRes = await API.get(`/products/${id}/related/`);
@@ -53,10 +58,11 @@ const ProductDetailPage = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart(product, quantity, selectedVariant);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
+
 
   const handlePostReview = async (e) => {
     e.preventDefault();
@@ -105,6 +111,11 @@ const ProductDetailPage = () => {
 
   const specsList = product.specs ? Object.entries(product.specs) : [];
 
+  const currentPrice = parseFloat(product.price) + (selectedVariant?.price_delta ? parseFloat(selectedVariant.price_delta) : 0);
+  const activeImage = selectedVariant?.image_url || product.image_url;
+  const activeStock = selectedVariant ? selectedVariant.stock_qty : product.stock_qty;
+  const isOutOfStock = activeStock <= 0;
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-10 space-y-12">
       {/* Back Button */}
@@ -125,7 +136,7 @@ const ProductDetailPage = () => {
             <div className="relative w-full h-96 bg-white/[0.02] rounded-2xl p-8 flex items-center justify-center border border-white/5 overflow-hidden">
               <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full" />
               <img
-                src={product.image_url}
+                src={activeImage}
                 alt={product.name}
                 className="max-h-80 max-w-full object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.8)] hover:scale-105 transition-transform duration-500"
               />
@@ -166,13 +177,53 @@ const ProductDetailPage = () => {
               </h1>
 
               <div className="text-3xl font-black text-blue-400 mt-3">
-                ${parseFloat(product.price).toFixed(2)}
+                ${currentPrice.toFixed(2)}
               </div>
             </div>
 
             <p className="text-slate-300 text-sm leading-relaxed font-normal">
               {product.description}
             </p>
+
+            {/* Apple-Style Color Swatch Picker */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="space-y-3 pt-2 border-t border-white/5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+                    Color: <span className="text-white font-extrabold">{selectedVariant?.color_name}</span>
+                  </span>
+                  {selectedVariant?.price_delta != 0 && (
+                    <span className="text-xs font-semibold text-blue-400">
+                      {parseFloat(selectedVariant.price_delta) > 0 ? `+$${parseFloat(selectedVariant.price_delta).toFixed(2)}` : `-$${Math.abs(selectedVariant.price_delta).toFixed(2)}`}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center space-x-3 pt-1">
+                  {product.variants.map((variant) => {
+                    const isSelected = selectedVariant?.id === variant.id;
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        onClick={() => setSelectedVariant(variant)}
+                        aria-label={variant.color_name}
+                        title={`${variant.color_name}${parseFloat(variant.price_delta) !== 0 ? ` (${parseFloat(variant.price_delta) > 0 ? '+' : ''}$${variant.price_delta})` : ''}`}
+                        className={`w-9 h-9 rounded-full border-2 transition-all cursor-pointer flex items-center justify-center ${
+                          isSelected
+                            ? 'border-blue-400 scale-110 shadow-lg shadow-blue-500/30 ring-2 ring-blue-400/20'
+                            : 'border-white/20 hover:border-white/50 hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: variant.hex_code }}
+                      >
+                        {isSelected && (
+                          <span className={`w-2.5 h-2.5 rounded-full ${parseInt(variant.hex_code.replace('#',''), 16) > 0x888888 ? 'bg-black' : 'bg-white'}`} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Technical Specs Breakdown */}
             {specsList.length > 0 && (
@@ -198,9 +249,11 @@ const ProductDetailPage = () => {
 
             {/* Stock indicator */}
             <div className="flex items-center space-x-2 text-xs">
-              <span className={`w-2.5 h-2.5 rounded-full ${product.stock_qty > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
+              <span className={`w-2.5 h-2.5 rounded-full ${!isOutOfStock ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
               <span className="text-slate-300 font-medium">
-                {product.stock_qty > 0 ? `In Stock (${product.stock_qty} units available)` : 'Out of Stock'}
+                {!isOutOfStock
+                  ? `In Stock (${activeStock} units available${selectedVariant ? ' in ' + selectedVariant.color_name : ''})`
+                  : `Out of Stock${selectedVariant ? ' in ' + selectedVariant.color_name : ''}`}
               </span>
             </div>
 
@@ -224,10 +277,12 @@ const ProductDetailPage = () => {
 
               <button
                 onClick={handleAddToCart}
-                disabled={product.stock_qty <= 0}
+                disabled={isOutOfStock}
                 className={`flex-1 py-4 px-8 rounded-full font-bold text-sm text-white flex items-center justify-center space-x-2 transition-all cursor-pointer ${
                   added 
                     ? 'bg-emerald-500 shadow-lg shadow-emerald-500/30' 
+                    : isOutOfStock
+                    ? 'bg-slate-700/50 cursor-not-allowed text-slate-400 border border-white/5'
                     : 'btn-glow'
                 }`}
               >
@@ -236,10 +291,12 @@ const ProductDetailPage = () => {
                     <Check className="w-4 h-4 text-white" />
                     <span>Added to Cart!</span>
                   </>
+                ) : isOutOfStock ? (
+                  <span>Out of stock in this color</span>
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Cart (${(parseFloat(product.price) * quantity).toFixed(2)})</span>
+                    <span>Add to Cart (${(currentPrice * quantity).toFixed(2)})</span>
                   </>
                 )}
               </button>

@@ -124,15 +124,34 @@ const ProductCard = ({ product, onSelect, index = 0 }) => {
         <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
           <div className="flex flex-col">
             <span className="text-xs text-slate-400 uppercase font-semibold">Price</span>
-            <span className="text-xl font-black text-white">
-              ${parseFloat(product.price).toFixed(2)}
-            </span>
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-black text-white">
+                ${parseFloat(product.price).toFixed(2)}
+              </span>
+
+              {/* Mini Color Variant Dots Preview */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="flex items-center space-x-1 pl-1" title={`${product.variants.length} color options`}>
+                  {product.variants.slice(0, 4).map(v => (
+                    <span
+                      key={v.id}
+                      className="w-2.5 h-2.5 rounded-full border border-white/30 shrink-0 inline-block"
+                      style={{ backgroundColor: v.hex_code }}
+                    />
+                  ))}
+                  {product.variants.length > 4 && (
+                    <span className="text-[10px] text-slate-400 font-semibold">+</span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <button
             onClick={(e) => {
               e.stopPropagation();
-              addToCart(product, 1);
+              const defaultVariant = product.variants?.find(v => v.is_default) || product.variants?.[0] || null;
+              addToCart(product, 1, defaultVariant);
             }}
             className="btn-glow p-3 rounded-xl text-white flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
             title="Add to Cart"

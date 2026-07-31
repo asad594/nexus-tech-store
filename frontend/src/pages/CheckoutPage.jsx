@@ -258,15 +258,29 @@ const CheckoutPage = () => {
             </h3>
 
             <div className="space-y-3 max-h-60 overflow-y-auto no-scrollbar">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex justify-between items-center text-xs">
-                  <div className="flex items-center space-x-2 truncate max-w-[180px]">
-                    <span className="font-bold text-blue-400">{item.quantity}x</span>
-                    <span className="text-slate-200 truncate">{item.product.name}</span>
+              {cartItems.map((item) => {
+                const unitPrice = parseFloat(item.product.price) + (item.variant?.price_delta ? parseFloat(item.variant.price_delta) : 0);
+                return (
+                  <div key={item.id} className="flex justify-between items-center text-xs">
+                    <div className="flex items-center space-x-2 truncate max-w-[190px]">
+                      <span className="font-bold text-blue-400 shrink-0">{item.quantity}x</span>
+                      <div className="truncate">
+                        <span className="text-slate-200 truncate block font-medium">{item.product.name}</span>
+                        {item.variant && (
+                          <div className="flex items-center space-x-1">
+                            <span
+                              className="w-2 h-2 rounded-full border border-white/30 shrink-0 inline-block"
+                              style={{ backgroundColor: item.variant.hex_code }}
+                            />
+                            <span className="text-[10px] text-slate-400 font-semibold truncate">{item.variant.color_name}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <span className="font-bold text-white shrink-0">${(unitPrice * item.quantity).toFixed(2)}</span>
                   </div>
-                  <span className="font-bold text-white">${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="pt-3 border-t border-white/10 flex justify-between text-base font-black text-white">

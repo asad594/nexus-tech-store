@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Category, Product, Order, OrderItem, CartItem, Review, Wishlist
+from .models import Category, Product, ProductVariant, Order, OrderItem, CartItem, Review, Wishlist
 
 User = get_user_model()
 
@@ -65,10 +65,16 @@ class CategorySerializer(serializers.ModelSerializer):
     def get_product_count(self, obj):
         return obj.products.count()
 
+class ProductVariantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductVariant
+        fields = ('id', 'color_name', 'hex_code', 'image_url', 'price_delta', 'stock_qty', 'is_default', 'created_at')
+
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_icon = serializers.CharField(source='category.icon', read_only=True)
     in_stock = serializers.SerializerMethodField()
+    variants = ProductVariantSerializer(many=True, required=False)
 
     class Meta:
         model = Product
@@ -76,11 +82,38 @@ class ProductSerializer(serializers.ModelSerializer):
             'id', 'name', 'category', 'category_name', 'category_icon',
             'price', 'description', 'specs', 'stock_qty', 'in_stock',
             'image_url', 'brand', 'is_featured', 'is_new', 'rating',
-            'num_reviews', 'created_at'
+            'num_reviews', 'created_at', 'variants'
         )
 
     def get_in_stock(self, obj):
         return obj.stock_qty > 0
+
+    def create(self, validated_data):
+        variants_data = validated_data.pop('variants', [])
+        product = Product.objects.create(**validated_data)
+        for variant_data in variants_data:
+            ProductVariant.objects.create(product=product, **variant_data)
+        return product
+
+    def update(self, instance, validated_data):
+        variants_data = validated_data.pop('variants', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if variants_data is not None:
+            existing_ids = [v['id'] for v in variants_data if 'id' in v]
+            instance.variants.exclude(id__in=existing_ids).delete()
+            for v_data in variants_data:
+                v_id = v_data.get('id', None)
+                if v_id and ProductVariant.objects.filter(id=v_id, product=instance).exists():
+                    ProductVariant.objects.filter(id=v_id, product=instance).update(**v_data)
+                else:
+                    v_data.pop('id', None)
+                    ProductVariant.objects.create(product=instance, **v_data)
+
+        return instance
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.name', read_only=True)
@@ -104,32 +137,42 @@ class WishlistSerializer(serializers.ModelSerializer):
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_detail = ProductSerializer(source='product', read_only=True)
+    variant_detail = ProductVariantSerializer(source='variant', read_only=True)
+    variant = serializers.PrimaryKeyRelatedField(
+        queryset=ProductVariant.objects.all(),
+        required=False,
+        allow_null=True
+    )
     subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
-        fields = ('id', 'product', 'product_detail', 'quantity', 'subtotal', 'updated_at')
+        fields = ('id', 'product', 'product_detail', 'variant', 'variant_detail', 'quantity', 'subtotal', 'updated_at')
 
     def get_subtotal(self, obj):
-        return str(round(obj.product.price * obj.quantity, 2))
+        unit_price = obj.product.price + (obj.variant.price_delta if obj.variant else 0)
+        return str(round(unit_price * obj.quantity, 2))
 
 class SyncCartItemInputSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
+    variant_id = serializers.IntegerField(required=False, allow_null=True)
     quantity = serializers.IntegerField(default=1)
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_detail = ProductSerializer(source='product', read_only=True)
+    variant_detail = ProductVariantSerializer(source='variant', read_only=True)
     subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
         fields = (
-            'id', 'product', 'product_name_snapshot', 'product_detail',
-            'quantity', 'price_at_purchase', 'subtotal'
+            'id', 'product', 'variant', 'variant_detail', 'product_name_snapshot',
+            'variant_name_snapshot', 'product_detail', 'quantity', 'price_at_purchase', 'subtotal'
         )
 
     def get_subtotal(self, obj):
         return str(round(obj.price_at_purchase * obj.quantity, 2))
+
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
@@ -160,6 +203,7 @@ class CheckoutSerializer(serializers.Serializer):
 
 class DirectCheckoutSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
+    variant_id = serializers.IntegerField(required=False, allow_null=True)
     quantity = serializers.IntegerField(default=1)
     shipping_address = serializers.CharField(required=False, allow_blank=True)
     city = serializers.CharField(required=False, allow_blank=True)
@@ -167,3 +211,4 @@ class DirectCheckoutSerializer(serializers.Serializer):
     country = serializers.CharField(required=False, allow_blank=True, default='United States')
     payment_method = serializers.CharField(required=False, default='Credit Card')
     notes = serializers.CharField(required=False, allow_blank=True)
+

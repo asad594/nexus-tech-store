@@ -6,10 +6,10 @@ from django.db import transaction
 from django.db.models import Q, Sum, Count, F, Avg
 from django.contrib.auth import get_user_model
 
-from .models import Category, Product, Order, OrderItem, CartItem, Review, Wishlist
+from .models import Category, Product, ProductVariant, Order, OrderItem, CartItem, Review, Wishlist
 from .serializers import (
     UserSerializer, UserProfileUpdateSerializer, ChangePasswordSerializer,
-    RegisterSerializer, CategorySerializer, ProductSerializer,
+    RegisterSerializer, CategorySerializer, ProductSerializer, ProductVariantSerializer,
     CartItemSerializer, SyncCartItemInputSerializer, OrderSerializer,
     ReviewSerializer, WishlistSerializer, CheckoutSerializer, DirectCheckoutSerializer
 )
@@ -65,18 +65,27 @@ def change_password(request):
 def sync_cart(request):
     """
     Merges items from client-side guest cart into the authenticated user's cart database.
-    Input payload: list of { product_id: int, quantity: int }
+    Input payload: list of { product_id: int, variant_id: int|null, quantity: int }
     """
     items = request.data.get('items', [])
     for item in items:
         product_id = item.get('product_id')
+        variant_id = item.get('variant_id') or item.get('variant')
         qty = int(item.get('quantity', 1))
         if product_id and qty > 0:
             try:
                 product = Product.objects.get(id=product_id)
+                variant = None
+                if variant_id:
+                    try:
+                        variant = ProductVariant.objects.get(id=variant_id, product=product)
+                    except ProductVariant.DoesNotExist:
+                        variant = None
+
                 cart_item, created = CartItem.objects.get_or_create(
                     user=request.user,
                     product=product,
+                    variant=variant,
                     defaults={'quantity': qty}
                 )
                 if not created:
@@ -88,6 +97,7 @@ def sync_cart(request):
     user_cart = CartItem.objects.filter(user=request.user)
     serializer = CartItemSerializer(user_cart, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -270,6 +280,7 @@ class CartViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         product_id = request.data.get('product') or request.data.get('product_id')
+        variant_id = request.data.get('variant') or request.data.get('variant_id')
         quantity = int(request.data.get('quantity', 1))
 
         if not product_id:
@@ -280,12 +291,23 @@ class CartViewSet(viewsets.ModelViewSet):
         except Product.DoesNotExist:
             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if product.stock_qty <= 0:
+        variant = None
+        if variant_id:
+            try:
+                variant = ProductVariant.objects.get(id=variant_id, product=product)
+            except ProductVariant.DoesNotExist:
+                return Response({'error': 'Selected variant does not exist for this product'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if variant:
+            if variant.stock_qty <= 0:
+                return Response({'error': f'Selected color "{variant.color_name}" is out of stock'}, status=status.HTTP_400_BAD_REQUEST)
+        elif product.stock_qty <= 0:
             return Response({'error': 'Product is out of stock'}, status=status.HTTP_400_BAD_REQUEST)
 
         cart_item, created = CartItem.objects.get_or_create(
             user=request.user,
             product=product,
+            variant=variant,
             defaults={'quantity': quantity}
         )
 
@@ -300,6 +322,7 @@ class CartViewSet(viewsets.ModelViewSet):
     def clear(self, request):
         CartItem.objects.filter(user=request.user).delete()
         return Response({'message': 'Cart cleared successfully'}, status=status.HTTP_200_OK)
+
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -322,17 +345,22 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def checkout(self, request):
         user = request.user
-        cart_items = CartItem.objects.filter(user=user).select_related('product')
+        cart_items = CartItem.objects.filter(user=user).select_related('product', 'variant')
 
         if not cart_items.exists():
             return Response({'error': 'Cart is empty'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Validate stock for all items
+        # Validate stock for all items (both variant stock and product stock)
         out_of_stock_items = []
         for item in cart_items:
-            if item.product.stock_qty < item.quantity:
+            if item.variant:
+                if item.variant.stock_qty < item.quantity:
+                    out_of_stock_items.append(
+                        f"{item.product.name} ({item.variant.color_name}) - requested: {item.quantity}, available: {item.variant.stock_qty}"
+                    )
+            elif item.product.stock_qty < item.quantity:
                 out_of_stock_items.append(
-                    f"{item.product.name} (requested: {item.quantity}, available: {item.product.stock_qty})"
+                    f"{item.product.name} - requested: {item.quantity}, available: {item.product.stock_qty}"
                 )
 
         if out_of_stock_items:
@@ -353,7 +381,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         notes = data.get('notes', '')
 
         from decimal import Decimal
-        items_subtotal = sum(item.product.price * item.quantity for item in cart_items)
+        items_subtotal = Decimal('0.00')
+        for item in cart_items:
+            unit_price = item.product.price + (item.variant.price_delta if item.variant else Decimal('0.00'))
+            items_subtotal += unit_price * item.quantity
+
         shipping_cost = Decimal('0.00') if items_subtotal >= Decimal('500') else Decimal('25.00')
         total_amount = items_subtotal + shipping_cost
 
@@ -372,14 +404,21 @@ class OrderViewSet(viewsets.ModelViewSet):
         )
 
         for item in cart_items:
+            unit_price = item.product.price + (item.variant.price_delta if item.variant else Decimal('0.00'))
+            v_name = item.variant.color_name if item.variant else ''
             OrderItem.objects.create(
                 order=order,
                 product=item.product,
+                variant=item.variant,
                 product_name_snapshot=item.product.name,
+                variant_name_snapshot=v_name,
                 quantity=item.quantity,
-                price_at_purchase=item.product.price
+                price_at_purchase=unit_price
             )
-            # Reduce product inventory stock
+            # Reduce inventory stock
+            if item.variant:
+                item.variant.stock_qty = max(0, item.variant.stock_qty - item.quantity)
+                item.variant.save()
             item.product.stock_qty = max(0, item.product.stock_qty - item.quantity)
             item.product.save()
 
@@ -405,8 +444,21 @@ class OrderViewSet(viewsets.ModelViewSet):
         except Product.DoesNotExist:
             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        variant = None
+        variant_id = data.get('variant_id')
+        if variant_id:
+            try:
+                variant = ProductVariant.objects.get(id=variant_id, product=product)
+            except ProductVariant.DoesNotExist:
+                return Response({'error': 'Selected variant not found'}, status=status.HTTP_404_NOT_FOUND)
+
         quantity = data.get('quantity', 1)
-        if product.stock_qty < quantity:
+        if variant:
+            if variant.stock_qty < quantity:
+                return Response({
+                    'error': f'Insufficient stock for {product.name} ({variant.color_name}). Available: {variant.stock_qty}'
+                }, status=status.HTTP_400_BAD_REQUEST)
+        elif product.stock_qty < quantity:
             return Response({
                 'error': f'Insufficient stock for {product.name}. Available: {product.stock_qty}'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -419,7 +471,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         notes = data.get('notes', '')
 
         from decimal import Decimal
-        items_subtotal = product.price * quantity
+        unit_price = product.price + (variant.price_delta if variant else Decimal('0.00'))
+        items_subtotal = unit_price * quantity
         shipping_cost = Decimal('0.00') if items_subtotal >= Decimal('500') else Decimal('25.00')
         total_amount = items_subtotal + shipping_cost
 
@@ -437,19 +490,26 @@ class OrderViewSet(viewsets.ModelViewSet):
             notes=notes
         )
 
+        v_name = variant.color_name if variant else ''
         OrderItem.objects.create(
             order=order,
             product=product,
+            variant=variant,
             product_name_snapshot=product.name,
+            variant_name_snapshot=v_name,
             quantity=quantity,
-            price_at_purchase=product.price
+            price_at_purchase=unit_price
         )
 
+        if variant:
+            variant.stock_qty = max(0, variant.stock_qty - quantity)
+            variant.save()
         product.stock_qty = max(0, product.stock_qty - quantity)
         product.save()
 
         order_serializer = self.get_serializer(order)
         return Response(order_serializer.data, status=status.HTTP_201_CREATED)
+
 
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):

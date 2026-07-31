@@ -70,6 +70,22 @@ class Product(models.Model):
             self.num_reviews = 0
         self.save(update_fields=['rating', 'num_reviews'])
 
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
+    color_name = models.CharField(max_length=50)
+    hex_code = models.CharField(max_length=7)
+    image_url = models.URLField(max_length=1000, blank=True, default='')
+    price_delta = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    stock_qty = models.IntegerField(default=10)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.product.name} - {self.color_name}"
+
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
@@ -144,28 +160,36 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    variant = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL, null=True, blank=True)
     product_name_snapshot = models.CharField(max_length=255, blank=True, default='')
+    variant_name_snapshot = models.CharField(max_length=100, blank=True, default='')
     quantity = models.IntegerField(default=1)
     price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2)
 
     def save(self, *args, **kwargs):
         if self.product and not self.product_name_snapshot:
             self.product_name_snapshot = self.product.name
+        if self.variant and not self.variant_name_snapshot:
+            self.variant_name_snapshot = self.variant.color_name
         super().save(*args, **kwargs)
 
     def __str__(self):
         name = self.product_name_snapshot or (self.product.name if self.product else 'Product')
-        return f"{self.quantity}x {name}"
+        v_name = f" ({self.variant_name_snapshot})" if self.variant_name_snapshot else ""
+        return f"{self.quantity}x {name}{v_name}"
 
 class CartItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variant = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField(default=1)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('user', 'product')
+        unique_together = ('user', 'product', 'variant')
         ordering = ['-updated_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.product.name} ({self.quantity})"
+        v_info = f" - {self.variant.color_name}" if self.variant else ""
+        return f"{self.user.username} - {self.product.name}{v_info} ({self.quantity})"
+

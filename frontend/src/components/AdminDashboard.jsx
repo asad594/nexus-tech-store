@@ -65,11 +65,25 @@ const AdminDashboard = ({ isOpen, onClose, categories, onRefreshData }) => {
         return;
       }
 
+      const formattedVariants = (formData.variants || []).map((v) => {
+        const item = {
+          color_name: v.color_name || 'Standard',
+          hex_code: v.hex_code || '#8A8A86',
+          image_url: v.image_url || '',
+          price_delta: parseFloat(v.price_delta || 0),
+          stock_qty: parseInt(v.stock_qty || 10, 10),
+          is_default: Boolean(v.is_default),
+        };
+        if (v.id) item.id = v.id;
+        return item;
+      });
+
       const payload = {
         ...formData,
         price: parseFloat(formData.price),
         stock_qty: parseInt(formData.stock_qty, 10),
         specs: parsedSpecs,
+        variants: formattedVariants,
       };
 
       if (editingProduct) {
@@ -122,6 +136,9 @@ const AdminDashboard = ({ isOpen, onClose, categories, onRefreshData }) => {
       image_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1000',
       is_featured: true,
       is_new: true,
+      variants: [
+        { color_name: 'Natural Titanium', hex_code: '#8A8A86', image_url: '', price_delta: 0, stock_qty: 15, is_default: true }
+      ],
     });
     setShowProductModal(true);
   };
@@ -139,6 +156,15 @@ const AdminDashboard = ({ isOpen, onClose, categories, onRefreshData }) => {
       image_url: prod.image_url,
       is_featured: prod.is_featured,
       is_new: prod.is_new,
+      variants: prod.variants && prod.variants.length > 0 ? prod.variants.map(v => ({
+        id: v.id,
+        color_name: v.color_name,
+        hex_code: v.hex_code,
+        image_url: v.image_url || '',
+        price_delta: v.price_delta || 0,
+        stock_qty: v.stock_qty || 10,
+        is_default: v.is_default || false,
+      })) : [],
     });
     setShowProductModal(true);
   };
@@ -449,6 +475,125 @@ const AdminDashboard = ({ isOpen, onClose, categories, onRefreshData }) => {
                     required
                     className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-white focus:outline-none"
                   />
+                </div>
+
+                {/* Product Color Variants Repeatable Section */}
+                <div className="space-y-2 pt-2 border-t border-white/10">
+                  <div className="flex items-center justify-between">
+                    <label className="text-slate-300 font-bold block">
+                      Product Color Swatches / Variants ({formData.variants?.length || 0})
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newV = {
+                          color_name: 'New Color',
+                          hex_code: '#3B82F6',
+                          image_url: '',
+                          price_delta: 0,
+                          stock_qty: 10,
+                          is_default: (formData.variants?.length || 0) === 0
+                        };
+                        setFormData({ ...formData, variants: [...(formData.variants || []), newV] });
+                      }}
+                      className="glass-pill px-3 py-1 rounded-full text-[10px] font-bold text-blue-400 hover:text-white cursor-pointer flex items-center space-x-1"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>Add Color Swatch</span>
+                    </button>
+                  </div>
+
+                  {formData.variants && formData.variants.length > 0 && (
+                    <div className="space-y-2 max-h-48 overflow-y-auto no-scrollbar pr-1">
+                      {formData.variants.map((v, idx) => (
+                        <div key={idx} className="bg-white/[0.03] p-2.5 rounded-xl border border-white/5 grid grid-cols-12 gap-2 items-center">
+                          <input
+                            type="text"
+                            placeholder="Color Name (e.g. Natural Titanium)"
+                            value={v.color_name}
+                            onChange={(e) => {
+                              const updated = [...formData.variants];
+                              updated[idx].color_name = e.target.value;
+                              setFormData({ ...formData, variants: updated });
+                            }}
+                            className="col-span-3 px-2 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-white text-[11px] focus:outline-none"
+                          />
+                          <div className="col-span-2 flex items-center space-x-1">
+                            <input
+                              type="color"
+                              value={v.hex_code}
+                              onChange={(e) => {
+                                const updated = [...formData.variants];
+                                updated[idx].hex_code = e.target.value;
+                                setFormData({ ...formData, variants: updated });
+                              }}
+                              className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 shrink-0"
+                            />
+                            <input
+                              type="text"
+                              value={v.hex_code}
+                              onChange={(e) => {
+                                const updated = [...formData.variants];
+                                updated[idx].hex_code = e.target.value;
+                                setFormData({ ...formData, variants: updated });
+                              }}
+                              className="w-full px-1 py-1 rounded bg-white/[0.04] border border-white/10 text-white font-mono text-[10px]"
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Img URL (optional)"
+                            value={v.image_url}
+                            onChange={(e) => {
+                              const updated = [...formData.variants];
+                              updated[idx].image_url = e.target.value;
+                              setFormData({ ...formData, variants: updated });
+                            }}
+                            className="col-span-3 px-2 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-white text-[10px] focus:outline-none"
+                          />
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="Price +/-"
+                            value={v.price_delta}
+                            onChange={(e) => {
+                              const updated = [...formData.variants];
+                              updated[idx].price_delta = e.target.value;
+                              setFormData({ ...formData, variants: updated });
+                            }}
+                            className="col-span-2 px-1.5 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-white text-[10px] focus:outline-none"
+                          />
+                          <div className="col-span-2 flex items-center justify-end space-x-1">
+                            <label className="text-[9px] text-slate-400 cursor-pointer flex items-center space-x-1" title="Set as default color">
+                              <input
+                                type="radio"
+                                name="default_variant"
+                                checked={v.is_default}
+                                onChange={() => {
+                                  const updated = formData.variants.map((item, i) => ({
+                                    ...item,
+                                    is_default: i === idx
+                                  }));
+                                  setFormData({ ...formData, variants: updated });
+                                }}
+                              />
+                              <span>Def</span>
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = formData.variants.filter((_, i) => i !== idx);
+                                setFormData({ ...formData, variants: updated });
+                              }}
+                              className="text-slate-500 hover:text-red-400 p-1 cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-2">

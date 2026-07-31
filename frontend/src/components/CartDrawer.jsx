@@ -63,49 +63,67 @@ const CartDrawer = ({ onProceedToCheckout }) => {
                 </button>
               </div>
             ) : (
-              cartItems.map((item) => (
-                <div key={item.id} className="glass-card p-3 rounded-2xl flex items-center space-x-3 border border-white/5">
-                  <img
-                    src={item.product.image_url}
-                    alt={item.product.name}
-                    className="w-16 h-16 object-contain rounded-xl bg-white/5 p-1"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-white truncate">
-                      {item.product.name}
-                    </h4>
-                    <span className="text-xs text-blue-400 font-bold">
-                      ${parseFloat(item.product.price).toFixed(2)}
-                    </span>
+              cartItems.map((item) => {
+                const unitPrice = parseFloat(item.product.price) + (item.variant?.price_delta ? parseFloat(item.variant.price_delta) : 0);
+                const thumb = item.variant?.image_url || item.product.image_url;
+                return (
+                  <div key={item.id} className="glass-card p-3 rounded-2xl flex items-center space-x-3 border border-white/5">
+                    <img
+                      src={thumb}
+                      alt={item.product.name}
+                      className="w-16 h-16 object-contain rounded-xl bg-white/5 p-1 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-white truncate">
+                        {item.product.name}
+                      </h4>
 
-                    {/* Quantity Modifier */}
-                    <div className="flex items-center space-x-2 mt-2">
-                      <div className="flex items-center glass-pill rounded-lg px-2 py-0.5 text-xs">
+                      {/* Variant indicator */}
+                      {item.variant && (
+                        <div className="flex items-center space-x-1.5 py-0.5">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-white/30 shrink-0 inline-block"
+                            style={{ backgroundColor: item.variant.hex_code }}
+                          />
+                          <span className="text-[11px] text-slate-300 font-semibold truncate">
+                            {item.variant.color_name}
+                          </span>
+                        </div>
+                      )}
+
+                      <span className="text-xs text-blue-400 font-bold">
+                        ${unitPrice.toFixed(2)}
+                      </span>
+
+                      {/* Quantity Modifier */}
+                      <div className="flex items-center space-x-2 mt-2">
+                        <div className="flex items-center glass-pill rounded-lg px-2 py-0.5 text-xs">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="text-slate-400 hover:text-white px-1 font-bold cursor-pointer"
+                          >
+                            -
+                          </button>
+                          <span className="px-2 font-bold text-white">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="text-slate-400 hover:text-white px-1 font-bold cursor-pointer"
+                          >
+                            +
+                          </button>
+                        </div>
                         <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                          className="text-slate-400 hover:text-white px-1 font-bold cursor-pointer"
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-slate-500 hover:text-red-400 p-1 cursor-pointer transition-colors"
+                          title="Remove"
                         >
-                          -
-                        </button>
-                        <span className="px-2 font-bold text-white">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="text-slate-400 hover:text-white px-1 font-bold cursor-pointer"
-                        >
-                          +
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <button
-                        onClick={() => removeFromCart(item.product.id)}
-                        className="text-slate-500 hover:text-red-400 p-1 cursor-pointer transition-colors"
-                        title="Remove"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
