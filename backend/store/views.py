@@ -415,12 +415,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                 quantity=item.quantity,
                 price_at_purchase=unit_price
             )
-            # Reduce inventory stock
+            # Reduce inventory stock (variant stock if variant selected, else product stock)
             if item.variant:
                 item.variant.stock_qty = max(0, item.variant.stock_qty - item.quantity)
                 item.variant.save()
-            item.product.stock_qty = max(0, item.product.stock_qty - item.quantity)
-            item.product.save()
+            elif item.product:
+                item.product.stock_qty = max(0, item.product.stock_qty - item.quantity)
+                item.product.save()
 
         # Clear user cart
         cart_items.delete()
@@ -504,8 +505,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         if variant:
             variant.stock_qty = max(0, variant.stock_qty - quantity)
             variant.save()
-        product.stock_qty = max(0, product.stock_qty - quantity)
-        product.save()
+        else:
+            product.stock_qty = max(0, product.stock_qty - quantity)
+            product.save()
 
         order_serializer = self.get_serializer(order)
         return Response(order_serializer.data, status=status.HTTP_201_CREATED)
@@ -522,10 +524,13 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not (request.user == order.user or request.user.role == 'admin' or request.user.is_staff):
             return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Restore product stock
+        # Restore product or variant stock
         with transaction.atomic():
             for item in order.items.all():
-                if item.product:
+                if item.variant:
+                    item.variant.stock_qty += item.quantity
+                    item.variant.save()
+                elif item.product:
                     item.product.stock_qty += item.quantity
                     item.product.save()
 
