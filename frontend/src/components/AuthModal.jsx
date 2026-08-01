@@ -32,7 +32,13 @@ const AuthModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (err) {
       console.error('Auth error', err);
-      setError(err.response?.data?.error || err.response?.data?.detail || 'Authentication failed. Please verify credentials.');
+      if (err?.code === 'ERR_NETWORK' || !err?.response || err?.response?.status >= 500) {
+        setError('Unable to connect to backend server. Please ensure the Django backend server is running at http://localhost:8000.');
+      } else if (err?.response?.status === 401) {
+        setError('Invalid username or password. Please try again.');
+      } else {
+        setError(err.response?.data?.error || err.response?.data?.detail || 'Authentication failed. Please verify credentials.');
+      }
     } finally {
       setLoading(false);
     }
