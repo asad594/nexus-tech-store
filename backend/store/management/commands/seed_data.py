@@ -53,6 +53,7 @@ class Command(BaseCommand):
         categories_data = [
             {'name': 'Laptops', 'slug': 'laptops', 'icon': 'Laptop', 'description': 'Authentic laptops from Apple, Dell, HP, Lenovo, and Acer'},
             {'name': 'Phones', 'slug': 'phones', 'icon': 'Smartphone', 'description': 'Flagship foldable & holographic smartphone hardware'},
+            {'name': 'AirPods', 'slug': 'airpods', 'icon': 'Headphones', 'description': 'Wireless earbuds and spatial audio headphones'},
             {'name': 'Tablets', 'slug': 'tablets', 'icon': 'Tablet', 'description': 'Ultra-thin OLED digital art canvases'},
             {'name': 'Audio', 'slug': 'audio', 'icon': 'Headphones', 'description': 'Spatial lossy acoustic foam and transparent ANC buds'},
             {'name': 'Accessories', 'slug': 'accessories', 'icon': 'Watch', 'description': 'Sapphire glass wearables & Thunderbolt glass docks'},
@@ -114,7 +115,20 @@ class Command(BaseCommand):
                 'rating': 4.9,
             },
 
-            # --- AUDIO ---
+            # --- AUDIO & AIRPODS ---
+            {
+                'name': 'Huawei Freebuds Se 2',
+                'category': cat_objs['airpods'],
+                'price': 39.00,
+                'brand': 'Huawei',
+                'description': 'Ultra-lightweight ergonomic true wireless earbuds featuring 40-hour battery life, 10-minute fast charging for 3-hour playback, Bluetooth 5.3 stability, and IP54 dust and splash resistance.',
+                'specs': {'battery': '40 Hours Playtime with Case', 'bluetooth': 'Bluetooth 5.3', 'charging': '10-Min Fast Charge = 3 Hours', 'weight': '3.8g per Earbud', 'resistance': 'IP54 Dust & Water Resistance'},
+                'stock_qty': 25,
+                'image_url': '/images/products/airpods/huawei-freebuds-se-2.png',
+                'is_featured': True,
+                'is_new': True,
+                'rating': 4.8,
+            },
             {
                 'name': 'Nexus SoundPods Max',
                 'category': cat_objs['audio'],
