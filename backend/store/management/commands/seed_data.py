@@ -117,6 +117,19 @@ class Command(BaseCommand):
 
             # --- AUDIO & AIRPODS ---
             {
+                'name': 'Xiaomi Redmi Buds 6',
+                'category': cat_objs['airpods'],
+                'price': 29.00,
+                'brand': 'Xiaomi',
+                'description': 'Ultra-compact true wireless earbuds featuring 12.4mm titanium-diaphragm dynamic drivers, hybrid active noise cancellation up to 40dB, 38 hours total playback with charging case, and Bluetooth 5.4.',
+                'specs': {'anc': '40dB Hybrid Active Noise Cancellation', 'battery': '38 Hours Total Playtime with Case', 'driver': '12.4mm Titanium-Coated Dynamic Driver', 'bluetooth': 'Bluetooth 5.4', 'charging': '10-Min Fast Charge = 2 Hours'},
+                'stock_qty': 25,
+                'image_url': '/images/products/airpods/xiaomi-redmi-buds-6.png',
+                'is_featured': True,
+                'is_new': True,
+                'rating': 4.8,
+            },
+            {
                 'name': 'Huawei Freebuds Se 2',
                 'category': cat_objs['airpods'],
                 'price': 39.00,
