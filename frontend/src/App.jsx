@@ -80,6 +80,7 @@ function Layout() {
               <li><a href="/products?category=Phones" className="hover:text-blue-400 transition-colors">Flagship Phones</a></li>
               <li><a href="/products?category=Tablets" className="hover:text-blue-400 transition-colors">Digital Tablets</a></li>
               <li><a href="/products?category=Audio" className="hover:text-blue-400 transition-colors">Spatial Audio</a></li>
+              <li><a href="/products?category=Accessories" className="hover:text-blue-400 transition-colors">Cyber Accessories</a></li>
             </ul>
           </div>
 

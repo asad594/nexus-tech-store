@@ -11,9 +11,11 @@ const getSpecIcon = (categoryName) => {
       return Smartphone;
     case 'tablets':
       return Tablet;
+    case 'airpods':
     case 'audio':
       return Headphones;
     case 'accessories':
+    case 'accessorie':
       return Watch;
     default:
       return Cpu;
