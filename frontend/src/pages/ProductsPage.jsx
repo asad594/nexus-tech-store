@@ -12,8 +12,10 @@ const categoryIcons = {
   'Laptops': Laptop,
   'Phones': Smartphone,
   'Tablets': Tablet,
+  'AirPods': Headphones,
   'Audio': Headphones,
   'Accessories': Watch,
+  'Accessorie': Watch,
 };
 
 const ProductsPage = () => {
