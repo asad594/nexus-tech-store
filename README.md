@@ -184,6 +184,19 @@ Contributions are welcome! Follow these steps:
 4. Push to the Branch (`git checkout -b feature/AmazingFeature` -> `git push origin feature/AmazingFeature`)
 5. Open a **Pull Request**
 
+
+---
+
+## ⚡ Quick Command Reference
+
+| Action | Command | Directory |
+| :--- | :--- | :--- |
+| **Backend Dev Server** | `python manage.py runserver` | `backend/` |
+| **Seed Sample Data** | `python manage.py seed_data` | `backend/` |
+| **Run Backend Tests** | `python manage.py test store` | `backend/` |
+| **Frontend Dev Server** | `npm run dev` | `frontend/` |
+| **Frontend Build** | `npm run build` | `frontend/` |
+
 ---
 
 ## 📜 License
@@ -193,5 +206,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/asad594">Asad</a></sub>
+  <sub>Built with ❤️ by <a href="https://github.com/asad594">Muhammad Asad</a> • ⚡ Nexus Tech Store Framework</sub>
 </div>
+
