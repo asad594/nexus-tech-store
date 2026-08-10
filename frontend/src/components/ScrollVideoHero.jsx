@@ -13,6 +13,11 @@ const storeQualities = [
   { icon: ShieldCheck, title: '30-Day Risk-Free Returns', desc: '100% full money-back guarantee policy', color: 'text-blue-400' },
 ];
 
+/**
+ * ScrollVideoHero Component:
+ * Interactive hero section combining Lenis scroll scrubbing, HTML5 video canvas frame-playback,
+ * glassmorphism overlay badges, and dynamic product feature cards.
+ */
 const ScrollVideoHero = ({ onExploreClick }) => {
   const containerRef = useRef(null);
   const video1Ref = useRef(null);
