@@ -5,6 +5,7 @@ from .models import Category, Product, ProductVariant, Order, OrderItem, CartIte
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer representing custom User details and profile fields."""
     class Meta:
         model = User
         fields = (
@@ -14,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer handling profile edits for current logged-in user."""
     class Meta:
         model = User
         fields = (
