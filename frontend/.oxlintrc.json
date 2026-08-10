@@ -3,6 +3,8 @@
   "plugins": ["react", "oxc"],
   "rules": {
     "react/rules-of-hooks": "error",
+    "react/jsx-key": "warn",
+    "oxc/no-debugger": "warn",
     "react/only-export-components": ["warn", { "allowConstantExport": true }]
   }
 }
