@@ -5,6 +5,10 @@ from store.models import Category, Product, Order, OrderItem, CartItem, Review, 
 User = get_user_model()
 
 class Command(BaseCommand):
+    """
+    Management command to seed initial database records:
+    categories, products, default superuser, sample orders, and reviews.
+    """
     help = 'Seeds the database with 30 authentic laptop models (Apple, Dell, HP, Lenovo, Acer) with 100% verified real laptop photos'
 
     def handle(self, *args, **options):
