@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { X, Star, ShoppingBag, ShieldCheck, Truck, RefreshCw, Cpu, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
+/**
+ * ProductDetailModal Component:
+ * Interactive modal rendering comprehensive hardware specs, variant color selectors,
+ * quantity toggles, and direct add-to-cart action.
+ */
 const ProductDetailModal = ({ product, onClose }) => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
