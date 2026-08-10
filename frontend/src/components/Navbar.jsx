@@ -18,6 +18,10 @@ const categoryIcons = {
   'Accessories': Watch,
 };
 
+/**
+ * Primary Top Navigation Bar Component for Nexus Tech Store.
+ * Displays brand logo, category pills, search controls, and authentication menu.
+ */
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
