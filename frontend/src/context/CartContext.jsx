@@ -2,6 +2,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import API from '../api';
 
+/**
+ * Shopping Cart Context providing synchronized state between guest
+ * localStorage persistence and backend API persistence for authenticated users.
+ */
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {

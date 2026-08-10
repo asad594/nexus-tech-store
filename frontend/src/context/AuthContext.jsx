@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from '../api';
 
+/**
+ * Authentication Context for managing JWT user session state,
+ * login, registration, and user profile retrieval across Nexus Tech Store.
+ */
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
