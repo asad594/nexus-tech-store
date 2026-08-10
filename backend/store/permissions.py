@@ -1,6 +1,10 @@
 from rest_framework import permissions
 
 class IsAdminUserRole(permissions.BasePermission):
+    """
+    Permission check granting access only to users with administrative role,
+    staff status, or superuser permissions.
+    """
     def has_permission(self, request, view):
         return bool(
             request.user and
@@ -9,6 +13,9 @@ class IsAdminUserRole(permissions.BasePermission):
         )
 
 class IsOwnerOrAdmin(permissions.BasePermission):
+    """
+    Permission check granting access to object owner or administrative users.
+    """
     def has_object_permission(self, request, view, obj):
         if not request.user or not request.user.is_authenticated:
             return False
