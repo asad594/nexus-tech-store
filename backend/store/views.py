@@ -20,6 +20,10 @@ User = get_user_model()
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def register_user(request):
+    """
+    Register a new customer or admin account.
+    Returns generated JWT tokens upon registration.
+    """
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
