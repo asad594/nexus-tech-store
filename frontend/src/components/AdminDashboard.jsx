@@ -5,6 +5,11 @@ import {
 } from 'lucide-react';
 import API from '../api';
 
+/**
+ * AdminDashboard Component:
+ * Full management dashboard for administrators to perform CRUD operations on products,
+ * track customer orders, update order shipping status, and adjust stock quantities.
+ */
 const AdminDashboard = ({ isOpen, onClose, categories, onRefreshData }) => {
   const [activeTab, setActiveTab] = useState('products');
   const [products, setProducts] = useState([]);
