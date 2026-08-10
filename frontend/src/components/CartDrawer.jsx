@@ -4,6 +4,11 @@ import { X, Trash2, ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
+/**
+ * CartDrawer Component:
+ * Slide-over shopping cart drawer rendering dynamic item lists, subtotal calculation,
+ * quantity mutators, and seamless checkout transition.
+ */
 const CartDrawer = ({ onProceedToCheckout }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
