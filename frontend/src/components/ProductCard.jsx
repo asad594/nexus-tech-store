@@ -34,12 +34,17 @@ const getSpecText = (product) => {
   return Object.values(product.specs)[1] || Object.values(product.specs)[0] || 'Premium specifications';
 };
 
+/**
+ * Reusable Product Card Component with 3D tilt interaction,
+ * rating badge, category specs snippet, and quick add-to-cart.
+ */
 const ProductCard = ({ product, onSelect, index = 0 }) => {
   const { addToCart } = useCart();
   const SpecIcon = getSpecIcon(product.category_name);
   const mainSpec = getSpecText(product);
 
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [imageError, setImageError] = useState(false);
 
   const handleMouseMove = (e) => {
     const card = e.currentTarget.getBoundingClientRect();
