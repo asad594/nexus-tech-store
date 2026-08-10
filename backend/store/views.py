@@ -613,3 +613,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             'category_sales': list(category_sales),
             'top_products': list(top_products),
         })
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def health_check(request):
+    """Health check view returning service readiness status."""
+    return Response({
+        'status': 'ok',
+        'service': 'nexus-backend-api',
+        'version': '1.0.0'
+    }, status=status.HTTP_200_OK)
