@@ -3,6 +3,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Avg
 
 class User(AbstractUser):
+    """
+    Custom User model extending Django AbstractUser.
+    Supports customer and admin role-based access control.
+    """
     ROLE_CHOICES = (
         ('customer', 'Customer'),
         ('admin', 'Admin'),
@@ -25,6 +29,10 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
 class Category(models.Model):
+    """
+    Product Category model representing hardware classifications
+    (e.g., Laptops, Smartphones, AirPods, Accessories).
+    """
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True, null=True)
     icon = models.CharField(max_length=50, default='Laptop')
@@ -39,6 +47,10 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
+    """
+    Catalog item representing electronics, laptops, phones, and tech accessories.
+    Includes specs JSON structure, pricing, stock levels, and review aggregations.
+    """
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     price = models.DecimalField(max_digits=10, decimal_places=2)
