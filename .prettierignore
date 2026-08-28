@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+backend/venv/
+.venv/
+
+# Build outputs
+frontend/dist/
+build/
+*.egg-info/
+
+# Databases and media
+*.sqlite3
+*.mp4
+*.webp
+*.png
+*.jpg
+*.jpeg
+
+# System & IDE files
+.DS_Store
+.idea/
+.vscode/
