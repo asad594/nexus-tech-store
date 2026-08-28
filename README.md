@@ -133,15 +133,18 @@ The frontend web application will start at: `http://localhost:5173/`
 
 ## ⚡ Quick Command Reference
 
-| Action | Command | Directory |
+| Action | Command | Directory / Tool |
 | :--- | :--- | :--- |
-| **Backend Dev Server** | `python manage.py runserver` | `backend/` |
+| **All-in-One Setup** | `make setup` | Root `Makefile` |
+| **Backend Dev Server** | `make run-backend` or `python manage.py runserver` | `backend/` |
 | **Seed Full Catalog** | `python manage.py seed_data` | `backend/` |
 | **Seed Demo Data** | `python manage.py seed_demo_data` | `backend/` |
-| **Run Backend Tests** | `python manage.py test store` | `backend/` |
-| **Frontend Dev Server** | `npm run dev` | `frontend/` |
-| **Frontend Build** | `npm run build` | `frontend/` |
-| **Docker Compose** | `docker-compose up -d` | Root `/` |
+| **Export Catalog JSON**| `python manage.py export_catalog` | `backend/` |
+| **Integrity Check** | `python manage.py check_integrity` | `backend/` |
+| **Run Backend Tests** | `make test` or `python manage.py test store` | `backend/` |
+| **Frontend Dev Server** | `make run-frontend` or `npm run dev` | `frontend/` |
+| **Frontend Build** | `make build` or `npm run build` | `frontend/` |
+| **Docker Compose** | `make docker-up` or `docker-compose up -d` | Root `/` |
 
 ---
 

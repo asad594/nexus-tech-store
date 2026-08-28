@@ -5,6 +5,19 @@ All notable changes to the Nexus Tech Store project will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-08-29
+
+### Added
+- **Backend Response Time Middleware**: Added `ResponseTimeMiddleware` providing request duration monitoring and `X-Process-Time-ms` headers.
+- **Dynamic Pagination**: Added `NexusStandardPagination` supporting customizable `page_size` query limits.
+- **Signals & Auditing**: Added product stock monitoring signals (`signals.py`) for low-inventory alerts.
+- **Management Commands**: Added `export_catalog` for JSON snapshots and `check_integrity` for database health diagnostics.
+- **Security Hardening Guide**: Created `backend/SECURITY_CONFIG.md` for production HSTS, SSL, and CORS setup.
+- **Advanced Frontend Hooks**: Added `useMediaQuery`, `useBreakpoints`, `useClipboard`, `useIntersectionObserver`, and `useOnClickOutside`.
+- **UI Components & Motion**: Added `Badge` (with 6 glowing status themes), `BackToTop` floating button, `Toast` HUD notification system, and Framer Motion animation presets (`animations.js`).
+- **Developer Automation**: Added root `Makefile` for one-line environment initialization and task running.
+- **Expanded Test Coverage**: Added automated tests for products filtering, wishlist management, cart operations, and diagnostic endpoints.
+
 ## [1.1.0] - 2026-08-28
 
 ### Added
