@@ -16,8 +16,11 @@ router.register('wishlist', WishlistViewSet, basename='wishlist')
 router.register('cart', CartViewSet, basename='cart')
 router.register('orders', OrderViewSet, basename='order')
 
+from .health import system_diagnostics
+
 urlpatterns = [
     path('health/', health_check, name='health_check'),
+    path('diagnostics/', system_diagnostics, name='system_diagnostics'),
     path('auth/register/', register_user, name='register'),
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
