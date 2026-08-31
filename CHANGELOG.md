@@ -5,7 +5,31 @@ All notable changes to the Nexus Tech Store project will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-08-31
+
+### Added
+- **SKU & Discount Utilities**: Added `validate_sku_format`, `calculate_discount_percentage`, `apply_discount`, and `generate_order_reference` with test coverage in `backend/store/utils.py`.
+- **Frontend Text & String Toolkit**: Added `truncateText`, `capitalize`, `slugify`, `stripHtml`, `maskEmail`, `formatBytes`, and `pluralize` in `frontend/src/utils/text.js`.
+- **API Request Throttling**: Added DRF rate-limiting classes (`BurstRateThrottle`, `SustainedRateThrottle`, `AuthRateThrottle`, `OrderCreationThrottle`) in `backend/store/throttling.py`.
+- **Keyboard Shortcut Hooks**: Added `useKeyPress` and `useHotkeys` in `frontend/src/hooks/useKeyPress.js`.
+- **Serializer Test Suite**: Expanded unit tests covering `ProductSerializer`, `OrderItemSerializer`, and registration edge cases.
+- **Store Sales Report Command**: Added `sales_report` management command calculating revenue, order volumes, and average order values with `--json` export support.
+- **Financial & Currency Helpers**: Added `formatPrice`, `calculateDiscount`, `formatCompactNumber`, and `calculateCartSummary` in `frontend/src/utils/currency.js`.
+- **Custom Model QuerySets**: Added `ProductQuerySet` and `OrderQuerySet` in `backend/store/managers.py`.
+- **Timing & Declarative Interval Hooks**: Added `useInterval` and `useTimeout` hooks with automatic lifecycle teardown.
+- **Cart Maintenance Command**: Added `prune_stale_carts` command with `--dry-run` and `--days` options.
+- **RatingStars Component**: Added accessible interactive and presentation star rating UI component in `frontend/src/components/RatingStars.jsx`.
+- **Command Test Suite**: Added automated tests for all management commands in `backend/store/tests/test_commands.py`.
+- **Network Status Hook**: Added `useOnlineStatus` hook monitoring real-time browser connectivity.
+- **Structured Error Handling**: Added domain exceptions and structured error envelopes in `backend/store/exceptions.py`.
+- **Tooltip Component**: Added floating dark-glassmorphism tooltip component in `frontend/src/components/Tooltip.jsx`.
+- **Repository Quality Tooling**: Added `.pre-commit-config.yaml` and `.github/workflows/markdown-lint.yml`.
+- **Persistent Storage Wrapper**: Added `safeGet`, `safeSet` with TTL expiry, and in-memory fallbacks in `frontend/src/utils/storage.js`.
+- **Health Check Latency Metrics**: Enhanced `/api/diagnostics/` with real-time database query latency metrics.
+- **OpenAPI 3.0.3 Specification**: Created `backend/API_SPECIFICATION.json` covering all REST endpoints, schemas, and parameters.
+
 ## [1.2.0] - 2026-08-29
+
 
 ### Added
 - **Backend Response Time Middleware**: Added `ResponseTimeMiddleware` providing request duration monitoring and `X-Process-Time-ms` headers.
