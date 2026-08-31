@@ -1,0 +1,28 @@
+name: Documentation & Markdown Quality
+
+on:
+  push:
+    paths:
+      - '**.md'
+      - '.github/**'
+  pull_request:
+    paths:
+      - '**.md'
+      - '.github/**'
+
+jobs:
+  markdown-check:
+    name: Markdown Lint & Link Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Run Markdown Linter
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: |
+            **/*.md
+            !node_modules/**
+            !backend/venv/**
