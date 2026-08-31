@@ -19,3 +19,6 @@ class HealthCheckEndpointsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('database', response.data)
         self.assertIn('uptime_seconds', response.data)
+        self.assertIn('database_latency_ms', response.data)
+        self.assertIsInstance(response.data['database_latency_ms'], (float, int))
+
