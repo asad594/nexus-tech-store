@@ -1,0 +1,128 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Nexus Tech Store REST API",
+    "version": "1.3.0",
+    "description": "High-performance REST API backend powering next-generation e-commerce operations, user auth, product catalogs, shopping cart sync, and admin analytics."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000/api",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "price": { "type": "string" },
+          "category": { "type": "integer" },
+          "description": { "type": "string" },
+          "stock_qty": { "type": "integer" },
+          "image_url": { "type": "string", "format": "uri" },
+          "brand": { "type": "string" },
+          "is_featured": { "type": "boolean" },
+          "is_new": { "type": "boolean" },
+          "rating": { "type": "number" },
+          "num_reviews": { "type": "integer" }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "icon": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
+          "total_amount": { "type": "string" },
+          "shipping_address": { "type": "string" },
+          "city": { "type": "string" },
+          "postal_code": { "type": "string" },
+          "country": { "type": "string" },
+          "payment_status": { "type": "string", "enum": ["unpaid", "paid", "refunded"] },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/products/": {
+      "get": {
+        "summary": "List products with search and category filtering",
+        "responses": {
+          "200": {
+            "description": "Paginated list of hardware products"
+          }
+        }
+      }
+    },
+    "/categories/": {
+      "get": {
+        "summary": "List all hardware classifications",
+        "responses": {
+          "200": {
+            "description": "List of categories"
+          }
+        }
+      }
+    },
+    "/cart/": {
+      "get": {
+        "summary": "Get authenticated user cart items",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Cart items list and summary" }
+        }
+      },
+      "post": {
+        "summary": "Add item to user cart",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "201": { "description": "Item added successfully" }
+        }
+      }
+    },
+    "/orders/": {
+      "get": {
+        "summary": "List past customer orders",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "200": { "description": "Order history" } }
+      },
+      "post": {
+        "summary": "Checkout and place new order",
+        "security": [{ "BearerAuth": [] }],
+        "responses": { "201": { "description": "Order created" } }
+      }
+    },
+    "/health/": {
+      "get": {
+        "summary": "Basic health check ping",
+        "responses": { "200": { "description": "Service online" } }
+      }
+    },
+    "/diagnostics/": {
+      "get": {
+        "summary": "Detailed system diagnostics and database latency",
+        "responses": { "200": { "description": "Diagnostics details" } }
+      }
+    }
+  }
+}
