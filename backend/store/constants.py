@@ -45,3 +45,38 @@ MAX_PAGE_SIZE = 100
 MIN_REVIEW_RATING = 1
 MAX_REVIEW_RATING = 5
 LOW_STOCK_THRESHOLD = 5
+
+# Financial & Tax Constraints
+STANDARD_TAX_RATE = 0.08
+FREE_SHIPPING_THRESHOLD = 100.00
+STANDARD_SHIPPING_FEE = 15.00
+
+# Supported Store Currencies
+SUPPORTED_CURRENCIES = {
+    'USD': {'symbol': '$', 'name': 'US Dollar'},
+    'EUR': {'symbol': '€', 'name': 'Euro'},
+    'GBP': {'symbol': '£', 'name': 'British Pound'},
+    'JPY': {'symbol': '¥', 'name': 'Japanese Yen'},
+    'CAD': {'symbol': 'CA$', 'name': 'Canadian Dollar'},
+}
+
+# Valid Order Status State Machine Transitions
+ORDER_STATUS_TRANSITIONS = {
+    ORDER_STATUS_PENDING: [ORDER_STATUS_PROCESSING, ORDER_STATUS_CANCELLED],
+    ORDER_STATUS_PROCESSING: [ORDER_STATUS_SHIPPED, ORDER_STATUS_CANCELLED],
+    ORDER_STATUS_SHIPPED: [ORDER_STATUS_DELIVERED],
+    ORDER_STATUS_DELIVERED: [],
+    ORDER_STATUS_CANCELLED: [],
+}
+
+# Standard Shipping Destinations
+ALLOWED_SHIPPING_COUNTRIES = (
+    'United States',
+    'Canada',
+    'United Kingdom',
+    'Germany',
+    'France',
+    'Japan',
+    'Australia',
+)
+
