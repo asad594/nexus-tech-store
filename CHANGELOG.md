@@ -5,7 +5,33 @@ All notable changes to the Nexus Tech Store project will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-09-02
+
+### Added
+- **Store Validators**: Added price, stock quantity boundary, hex color, and rating bounds validators in `backend/store/validators.py` with comprehensive unit tests.
+- **Date Utilities**: Added `formatDate`, `formatRelativeTime`, `isDateInPast`, and `formatIsoDate` helpers in `frontend/src/utils/date.js`.
+- **Queryset Filter Helpers**: Added `filter_products_by_params` and `parse_price_range` in `backend/store/filters.py`.
+- **Event Listener Hook**: Added `useEventListener` declarative event binding hook in `frontend/src/hooks/useEventListener.js`.
+- **Throttling Test Suite**: Added automated tests for custom rate limiting throttles in `backend/store/tests/test_throttling.py`.
+- **Math Utilities**: Added `clamp`, `lerp`, `roundToPrecision`, `calculatePercentage`, and `mapRange` in `frontend/src/utils/math.js`.
+- **Review Seeder Command**: Added `seed_reviews` management command to generate authentic sample product reviews.
+- **State Tracking Hook**: Added `usePrevious` custom hook for comparing previous render values in `frontend/src/hooks/usePrevious.js`.
+- **Review Sync Command**: Added `sync_ratings` management command to re-calculate average product ratings.
+- **Toggle State Hook**: Added `useToggle` boolean helper hook in `frontend/src/hooks/useToggle.js`.
+- **Cyber Spinner Component**: Added `Spinner` futuristic glowing loading component in `frontend/src/components/Spinner.jsx`.
+- **Review Recalculation Tests**: Added automated unit tests for rating updates upon review deletion and command syncing in `backend/store/tests/test_reviews.py`.
+- **Mouse Detection Hook**: Added `useHover` custom hook in `frontend/src/hooks/useHover.js`.
+- **Compact & Large Pagination**: Added `NexusCompactPagination` and `NexusLargePagination` in `backend/store/pagination.py` with unit tests.
+- **Neon Divider Component**: Added `Divider` glassmorphic glowing separator component in `frontend/src/components/Divider.jsx`.
+- **Expanded Domain Constants**: Added currency mappings, shipping country destinations, and order status transitions in `backend/store/constants.py`.
+- **Accordion Component**: Added accessible collapsible `Accordion` component in `frontend/src/components/Accordion.jsx`.
+- **Scroll Position Hook**: Added `useScrollPosition` hook for direction and boundary tracking in `frontend/src/hooks/useScrollPosition.js`.
+- **Database Schema & ERD Documentation**: Created `backend/DATABASE_SCHEMA.md` with full Mermaid ER diagrams and table invariants.
+- **Modal Dialog Wrapper**: Added accessible `Modal` presentation wrapper in `frontend/src/components/Modal.jsx`.
+- **Contributor Guidelines**: Expanded `CONTRIBUTING.md` with branching rules, Conventional Commit standards, and PR checklist.
+
 ## [1.3.0] - 2026-08-31
+
 
 ### Added
 - **SKU & Discount Utilities**: Added `validate_sku_format`, `calculate_discount_percentage`, `apply_discount`, and `generate_order_reference` with test coverage in `backend/store/utils.py`.

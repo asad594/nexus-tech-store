@@ -13,9 +13,10 @@
 [![Django](https://img.shields.io/badge/Backend-Django_REST-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Docker](https://img.shields.io/badge/Container-Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-[![Version](https://img.shields.io/badge/Release-v1.3.0-blueviolet?style=for-the-badge)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Release-v1.4.0-blueviolet?style=for-the-badge)](CHANGELOG.md)
 
-[View Demo](#-getting-started) • [API Documentation](backend/API_DOCUMENTATION.md) • [OpenAPI Spec](backend/API_SPECIFICATION.json) • [Architecture Guide](frontend/ARCHITECTURE.md) • [Report Bug](https://github.com/asad594/nexus-tech-store/issues)
+[View Demo](#-getting-started) • [API Documentation](backend/API_DOCUMENTATION.md) • [OpenAPI Spec](backend/API_SPECIFICATION.json) • [DB Schema](backend/DATABASE_SCHEMA.md) • [Architecture Guide](frontend/ARCHITECTURE.md) • [Report Bug](https://github.com/asad594/nexus-tech-store/issues)
+
 
 
 </div>
