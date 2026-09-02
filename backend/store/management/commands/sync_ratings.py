@@ -24,9 +24,10 @@ class Command(BaseCommand):
                 product.update_rating()
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f"Synced rating for Product #{product.id} '{product.name}': {product.rating}★ ({product.num_reviews} reviews)"
+                        f"Synced rating for Product #{product.id} '{product.name}': {product.rating} stars ({product.num_reviews} reviews)"
                     )
                 )
+
             except Product.DoesNotExist:
                 self.stdout.write(self.style.ERROR(f"Product #{product_id} not found."))
             return
